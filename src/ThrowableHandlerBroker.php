@@ -2,8 +2,8 @@
 
 namespace AlanzEvo\GooglePubsub;
 
-use AlanzEvo\Abstracts\AbstractExceptionHandler;
-use AlanzEvo\GooglePubsub\WrongThrowableHandlerException;
+use AlanzEvo\GooglePubsub\Abstracts\AbstractThrowableHandler;
+use AlanzEvo\GooglePubsub\Exceptions\WrongThrowableHandlerException;
 use Google\Cloud\PubSub\Message;
 use Throwable;
 
@@ -18,7 +18,7 @@ class ThrowableHandlerBroker
     {
         if (class_exists($handlerClass)) {
             $handler = app($handlerClass);
-            $isValidHandler = $handler instanceof AbstractExceptionHandler;
+            $isValidHandler = $handler instanceof AbstractThrowableHandler;
             if ($isValidHandler) {
                 return $handler->setMessage($message)->setThrowable($throwable)->handle();
             }
