@@ -14,7 +14,11 @@ class ListenPubsubMessage extends Command
      *
      * @var string
      */
-    protected $signature = 'listen-pubsub-message {listener : The listener for handling.} {--sleep= : Sleep N ms after a message, default: 1000 ms} {--once : Break the process after handling messages.}';
+    protected $signature = 'listen-pubsub-message '
+                            . '{listener : The listener for handling.} '
+                            . '{--sleep= : Sleep N ms after a message, default: 1000 ms} '
+                            . '{--once : Break the process after handling messages.} '
+                            . '{--ackBeforeHandling : Ack to google pub/sub before handling}';
 
     /**
      * The console command description.
@@ -33,6 +37,7 @@ class ListenPubsubMessage extends Command
         $listener = $this->argument('listener');
         $sleep = $this->option('sleep');
         $once = $this->option('once');
+        $ackBeforeHandling = $this->option('ackBeforeHandling');
         if ($sleep < 0 || is_null($sleep)) {
             $sleep = 1000;
         }
@@ -46,13 +51,15 @@ class ListenPubsubMessage extends Command
         $subscriber = app(Subscriber::class, [
             'subscriberName' => $listenerConfig['subscriber']
         ]);
+
         $messageAdapter = app(MessageAdapter::class)
             ->setMaxMessages($listenerConfig['maxMessage'] ?? 1)
             ->setMessageLockSec($listenerConfig['messageLockSec'] ?? 30)
             ->setSleepMsPerMessage($sleep)
             ->setHandler($listenerConfig['handler'])
             ->setThrowableHandler($listenerConfig['throwableHandler'] ?? null)
-            ->setSubscriber($subscriber);
+            ->setSubscriber($subscriber)
+            ->setAckBeforeHandling($ackBeforeHandling);
 
         // 持續監聽不中斷，除非 once 為 true
         do {
