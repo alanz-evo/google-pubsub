@@ -18,7 +18,7 @@ class Publisher
     /**
      * @param string $publisherName
      */
-    public function __construct(string $publisherName)
+    public function __construct(string $publisherName = 'default')
     {
         $this->publisherName = $publisherName;
     }

@@ -3,25 +3,20 @@
 return [
     'connections' => [
         // @see Google\Cloud\PubSub\PubSubClient::__construct
-        // 'sample' => [
-        //     'keyFilePath' => 'key.json',
-        //     'emulatorHost' => 'http://127.0.0.1',
-        // ],
+        'default' => [],
     ],
 
     'publishers' => [
-        // 設定範例
-        // 'sample' => [
-        //     'connection' => 'sample',
-        // ],
+        'default' => [
+            'connection' => 'default',
+        ],
     ],
 
     'subscribers' => [
-        // 設定範例
-        // 'sample' => [
-        //     'subscriber' => 'mysub',
-        //     'connection' => 'sample',
-        // ],
+        'default' => [
+            'subscriber' => 'mysubscriber',
+            'connection' => 'default',
+        ],
     ],
 
     'listeners' => [

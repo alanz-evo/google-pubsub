@@ -20,7 +20,7 @@ class Subscriber
      */
     protected $subscriberName = '';
 
-    public function __construct(string $subscriberName)
+    public function __construct(string $subscriberName = 'default')
     {
         $this->subscriberName = $subscriberName;
     }
