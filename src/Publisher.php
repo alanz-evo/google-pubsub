@@ -93,12 +93,12 @@ class Publisher
     protected function getConfig()
     {
         $subscriberConfig = config('pubsub.publishers.' . $this->publisherName);
-        if (empty($subscriberConfig)) {
+        if (is_null($subscriberConfig)) {
             throw new WrongPublisherException($this->publisherName);
         }
 
         $connectionConfig = config('pubsub.connections.' . $subscriberConfig['connection']);
-        if (empty($connectionConfig)) {
+        if (is_null($connectionConfig)) {
             throw new WrongConnectionException($subscriberConfig['connection']);
         }
 

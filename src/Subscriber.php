@@ -76,12 +76,12 @@ class Subscriber
     protected function getConfig()
     {
         $subscriberConfig = config('pubsub.subscribers.' . $this->subscriberName);
-        if (empty($subscriberConfig)) {
+        if (is_null($subscriberConfig)) {
             throw new WrongSubscriberException($this->subscriberName);
         }
 
         $connectionConfig = config('pubsub.connections.' . $subscriberConfig['connection']);
-        if (empty($connectionConfig)) {
+        if (is_null($connectionConfig)) {
             throw new WrongConnectionException($subscriberConfig['connection']);
         }
 
