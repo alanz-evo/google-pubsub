@@ -4,7 +4,6 @@ namespace AlanzEvo\GooglePubsub;
 
 use AlanzEvo\GooglePubsub\Exceptions\WrongConnectionException;
 use AlanzEvo\GooglePubsub\Exceptions\WrongDataException;
-use AlanzEvo\GooglePubsub\Exceptions\WrongPublisherException;
 use Illuminate\Contracts\Support\Arrayable;
 use Google\Cloud\PubSub\PubSubClient;
 
@@ -13,14 +12,14 @@ class Publisher
     /**
      * @var string
      */
-    protected $publisherName = '';
+    protected $connection = 'default';
 
     /**
-     * @param string $publisherName
+     * @param string $connection
      */
-    public function __construct(string $publisherName = 'default')
+    public function __construct(string $connection = 'default')
     {
-        $this->publisherName = $publisherName;
+        $this->connection = $connection;
     }
 
     /**
@@ -82,7 +81,7 @@ class Publisher
     {
         $config = $this->getConfig();
         $pubSub = app(PubSubClient::class, [
-            'config' => $config['connectionConfig'],
+            'config' => $config,
         ]);
 
         $pubSubTopic = $pubSub->topic($topic);
@@ -92,18 +91,11 @@ class Publisher
 
     protected function getConfig()
     {
-        $subscriberConfig = config('pubsub.publishers.' . $this->publisherName);
-        if (is_null($subscriberConfig)) {
-            throw new WrongPublisherException($this->publisherName);
+        $config = config('pubsub.connections.' . $this->connection);
+        if (is_null($config)) {
+            throw new WrongConnectionException($this->connection);
         }
 
-        $connectionConfig = config('pubsub.connections.' . $subscriberConfig['connection']);
-        if (is_null($connectionConfig)) {
-            throw new WrongConnectionException($subscriberConfig['connection']);
-        }
-
-        return [
-            'connectionConfig' => $connectionConfig,
-        ];
+        return $config;
     }
 }

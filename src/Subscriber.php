@@ -3,7 +3,6 @@
 namespace AlanzEvo\GooglePubsub;
 
 use AlanzEvo\GooglePubsub\Exceptions\WrongConnectionException;
-use AlanzEvo\GooglePubsub\Exceptions\WrongSubscriberException;
 use Google\Cloud\PubSub\Message;
 use Google\Cloud\PubSub\PubSubClient;
 use Google\Cloud\PubSub\Subscription;
@@ -18,11 +17,17 @@ class Subscriber
     /**
      * @var string
      */
-    protected $subscriberName = '';
+    protected $subscriptionId = null;
 
-    public function __construct(string $subscriberName = 'default')
+    /**
+     * @var string
+     */
+    protected $connection = '';
+
+    public function __construct(string $subscriptionId, string $connection = 'default')
     {
-        $this->subscriberName = $subscriberName;
+        $this->connection = $connection;
+        $this->subscriptionId = $subscriptionId;
     }
 
     /**
@@ -64,10 +69,10 @@ class Subscriber
         if (is_null($this->subscription)) {
             $config = $this->getConfig();
             $pubSub = app(PubSubClient::class, [
-                'config' => $config['connectionConfig'],
+                'config' => $config,
             ]);
 
-            $this->subscription = $pubSub->subscription($config['subscriber']);
+            $this->subscription = $pubSub->subscription($this->subscriptionId);
         }
 
         return $this->subscription;
@@ -75,19 +80,11 @@ class Subscriber
 
     protected function getConfig()
     {
-        $subscriberConfig = config('pubsub.subscribers.' . $this->subscriberName);
-        if (is_null($subscriberConfig)) {
-            throw new WrongSubscriberException($this->subscriberName);
+        $config = config('pubsub.connections.' . $this->connection);
+        if (is_null($config)) {
+            throw new WrongConnectionException($this->connection);
         }
 
-        $connectionConfig = config('pubsub.connections.' . $subscriberConfig['connection']);
-        if (is_null($connectionConfig)) {
-            throw new WrongConnectionException($subscriberConfig['connection']);
-        }
-
-        return [
-            'subscriber' => $subscriberConfig['subscriber'],
-            'connectionConfig' => $connectionConfig,
-        ];
+        return $config;
     }
 }

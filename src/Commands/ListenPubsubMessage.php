@@ -49,7 +49,8 @@ class ListenPubsubMessage extends Command
         }
 
         $subscriber = app(Subscriber::class, [
-            'subscriberName' => $listenerConfig['subscriber']
+            'subscriptionId' => $listenerConfig['subscriptionId'],
+            'connection' => $listenerConfig['connection']
         ]);
 
         $messageAdapter = app(MessageAdapter::class)
