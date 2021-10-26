@@ -2,7 +2,8 @@
     "name": "alanz-evo/google-pubsub",
     "require": {
         "laravel/framework": "^7.0|^8.0",
-        "google/cloud-pubsub": "^1.34"
+        "google/cloud-pubsub": "^1.34",
+        "google/protobuf": "^3.17"
     },
     "autoload": {
         "psr-4": {
