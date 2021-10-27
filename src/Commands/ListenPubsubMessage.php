@@ -16,6 +16,7 @@ class ListenPubsubMessage extends Command
      */
     protected $signature = 'listen-pubsub-message '
                             . '{listener : The listener for handling.} '
+                            . '{--subscriptionId= : Specify the subscription id to instead of the subscription id of a listener.} '
                             . '{--sleep= : Sleep N ms after a message, default: 1000 ms} '
                             . '{--once : Break the process after handling messages.} '
                             . '{--ackBeforeHandling : Ack to google pub/sub before handling}';
@@ -35,10 +36,11 @@ class ListenPubsubMessage extends Command
     public function handle()
     {
         $listener = $this->argument('listener');
-        $sleep = $this->option('sleep');
-        $once = $this->option('once');
-        $ackBeforeHandling = $this->option('ackBeforeHandling');
-        if ($sleep < 0 || is_null($sleep)) {
+        $subscriptionId = $this->option('subscriptionId');
+        $sleep = $this->option('sleep') ?? 1000;
+        $once = $this->option('once') ?? false;
+        $ackBeforeHandling = $this->option('ackBeforeHandling') ?? false;
+        if ($sleep < 0) {
             $sleep = 1000;
         }
 
@@ -49,7 +51,7 @@ class ListenPubsubMessage extends Command
         }
 
         $subscriber = app(Subscriber::class, [
-            'subscriptionId' => $listenerConfig['subscriptionId'],
+            'subscriptionId' => $subscriptionId ?? $listenerConfig['subscriptionId'],
             'connection' => $listenerConfig['connection']
         ]);
 

@@ -146,7 +146,6 @@ class MessageAdapter
                     usleep($this->sleepMsPerMessage * 1000);
                 });
             } catch (LockTimeoutException $e) {
-                Log::error($e);
                 // Skip
             } catch (Throwable $th) {
                 Log::error($th);
