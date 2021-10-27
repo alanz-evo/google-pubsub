@@ -54,7 +54,7 @@ class ListenPubsubMessage extends Command
         ]);
 
         $messageAdapter = app(MessageAdapter::class)
-            ->setMaxMessages($listenerConfig['maxMessage'] ?? 1)
+            ->setMaxMessages($listenerConfig['maxMessages'] ?? 1)
             ->setMessageLockSec($listenerConfig['messageLockSec'] ?? 30)
             ->setSleepMsPerMessage($sleep)
             ->setHandler($listenerConfig['handler'])
