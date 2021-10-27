@@ -1,5 +1,5 @@
 ## 初始化設定
-```php artisan vendor:publish --provider="AlanzEvo\GooglePubsub\Providers\GooglePubsubProvider" --tag="config"```
+```php artisan vendor:publish --provider="AlanzEvo\GooglePubsub\Providers\GooglePubsubProvider" --tag="config"```<br />
 執行完指令後，將會產生出 `config/pubsub.php` 這個設定檔案 
 
 ## 設定檔說明
@@ -8,7 +8,8 @@ return [
     // 連線設定
     'connections' => [
         /**
-         *  詳細參數可以參考 http://googleapis.github.io/google-cloud-php/#/docs/cloud-pubsub/v1.34.1/pubsub/pubsubclient 中 __construct 的 config 說明
+         *  詳細參數可以參考 http://googleapis.github.io/google-cloud-php/#/docs/cloud-pubsub/v1.34.1/pubsub/pubsubclient
+         *  當中 __construct 的 config 說明
          */
 
         // 所有設定都是用 Google\Cloud\PubSub\PubSubClient 的預設值
@@ -68,9 +69,14 @@ return [
 ```
 
 ## Listener 指令
-`php artisan listen-pubsub-message {listener: 設定檔中的 Listener} [--sleep=(ms seconds)] [--once: 執行完即釋放] [--ackBeforeHandling: 在 Handler 執行前就回覆 acknowledge 給 Google PubSub]`
+`php artisan listen-pubsub-message {listener} [--subscriptionId=] [--sleep=] [--once] [--ackBeforeHandling]`
 
-將 command 加入 supervisor 中即可
+#### 參數說明
+- listener: 設定檔中的 Listener 名稱
+- subscriptionId: 指定 subscriptionId 取代 listener 中指定的 subscriptionId
+- sleep: 每個 Message 處理完後的緩衝時間，單位是 ms
+- once: 完成一組 Messages 後，就釋放掉 Process
+- ackBeforeHandling: 不論未來 Handler 執行成功與否，執行前就回覆 acknowledge 到 Google PubSub
 
 #### 範例
 ###### 範例一
@@ -89,6 +95,42 @@ return [
 
 `php artisan my-listener --sleep=500 --once --ackBeforeHandling`
 
+## Handler 和 ThrowableHandler 說明
+Handler 和 ThrowableHandler 的用途，分別是用來處理 Message 和處理中的例外處理<br />
+
+#### Handler 範例
+```PHP
+use AlanzEvo\GooglePubsub\Abstracts\AbstractHandler;
+
+class MyHandler extends AbstractHandler
+{
+    public function handle()
+    {
+        $data = json_decode($this->message->data(), true);
+
+        // Do something
+    }
+}
+
+```
+
+#### ThrowableHandler 範例
+```PHP
+use AlanzEvo\GooglePubsub\Abstracts\AbstractThrowableHandler;
+
+class MyThrowableHandler extends AbstractThrowableHandler
+{
+    public function handle()
+    {
+        $data = json_decode($this->message->data(), true);
+        $errorMessage = $this->throwable->getMessage();
+        
+        // Do something
+    }
+}
+
+```
+
 ## 特別說明
-- 當連線的授權證書，是從 `keyFilePath` 指定 json 時，可能會因為 Publish 太頻繁而發生 `Failed to open stream: Too many open files`，可以試著改用 `keyFile`
+- 當連線的授權證書，是從 `keyFilePath` 指定 json 檔，有可能因為 Publish 太頻繁而發生 `Failed to open stream: Too many open files`，可以試著改用 `keyFile`
 - 建議安裝 gRPC extension，可以避免 Publisher 和 Subscriber 發生 `Failed to open stream: Too many open files` 的發生。安裝請參考: https://cloud.google.com/php/grpc
