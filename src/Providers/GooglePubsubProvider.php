@@ -4,6 +4,7 @@ namespace AlanzEvo\GooglePubsub\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use AlanzEvo\GooglePubsub\Commands\ListenPubsubMessage;
+use AlanzEvo\GooglePubsub\Commands\PubsubSupervisor;
 
 class GooglePubsubProvider extends ServiceProvider
 {
@@ -30,6 +31,7 @@ class GooglePubsubProvider extends ServiceProvider
     {
         $this->commands([
             ListenPubsubMessage::class,
+            PubsubSupervisor::class,
         ]);
     }
 }

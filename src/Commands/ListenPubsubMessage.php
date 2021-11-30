@@ -4,7 +4,7 @@ namespace AlanzEvo\GooglePubsub\Commands;
 
 use Illuminate\Console\Command;
 use AlanzEvo\GooglePubsub\Subscriber;
-use AlanzEvo\GooglePubsub\MessageAdapter;
+use AlanzEvo\GooglePubsub\MessageListener;
 
 class ListenPubsubMessage extends Command
 {
@@ -55,21 +55,15 @@ class ListenPubsubMessage extends Command
             'connection' => $listenerConfig['connection']
         ]);
 
-        $messageAdapter = app(MessageAdapter::class)
+        app(MessageListener::class)
             ->setMaxMessages($listenerConfig['maxMessages'] ?? 1)
             ->setMessageLockSec($listenerConfig['messageLockSec'] ?? 30)
             ->setSleepMsPerMessage($sleep)
             ->setHandler($listenerConfig['handler'])
             ->setThrowableHandler($listenerConfig['throwableHandler'] ?? null)
             ->setSubscriber($subscriber)
-            ->setAckBeforeHandling($ackBeforeHandling);
-
-        // 持續監聽不中斷，除非 once 為 true
-        do {
-            $handledCount = $messageAdapter->handle();
-            if ($handledCount === 0) {
-                usleep(100000);  // 避免持續監聽造成 CPU 使用率一直處於高峰
-            }
-        } while (! $once);
+            ->setAckBeforeHandling($ackBeforeHandling)
+            ->setOnce($once)
+            ->loop();
     }
 }

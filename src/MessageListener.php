@@ -10,10 +10,15 @@ use AlanzEvo\GooglePubsub\HandlerBroker;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Throwable;
 
-class MessageAdapter
+class MessageListener
 {
     const SITUATION_SUCCESS = 'success';
     const SITUATION_FAIL = 'fail';
+
+    /**
+     * @var bool
+     */
+    protected $terminated = false;
 
     /**
      * @var Subscriber
@@ -49,6 +54,11 @@ class MessageAdapter
      * @var int
      */
     protected $sleepMsPerMessage = 1000;
+
+    /**
+     * @var bool
+     */
+    protected $once = false;
 
     /**
      * @param Subscriber $subscriber
@@ -121,11 +131,65 @@ class MessageAdapter
     }
 
     /**
-     * Execute the console command.
-     *
-     * @return int
+     * @param bool $once
      */
-    public function handle(): int
+    public function setOnce(bool $once)
+    {
+        $this->once = $once;
+
+        return $this;
+    }
+
+    /**
+     * Pull and handle messages loop.
+     */
+    public function loop()
+    {
+        $this->listenForSignals();
+
+        // 持續監聽不中斷，除非 once 為 true
+        do {
+            try {
+                if ($this->pullAndHandleMessages() == 0) {
+                    usleep(100000);  // 避免持續監聽造成 CPU 使用率一直處於高峰
+                }
+            } catch (Throwable $th) {
+                Log::error($th);
+                sleep(1);
+            }
+        } while ($this->shouldContinue());
+
+        posix_kill(getmypid(), SIGKILL);
+    }
+
+    protected function shouldContinue()
+    {
+        $ppid = posix_getppid();
+        
+        return !$this->once
+            && !$this->terminated
+            && $ppid !== 1;
+    }
+
+    protected function listenForSignals()
+    {
+        pcntl_async_signals(true);
+        
+        pcntl_signal(SIGTERM, function() {
+            $this->terminateSelf();
+        });
+
+        pcntl_signal(SIGINT, function() {
+            $this->terminateSelf();
+        });
+    }
+
+    protected function terminateSelf()
+    {
+        $this->terminated = true;
+    }
+
+    protected function pullAndHandleMessages()
     {
         $handledCount = 0;
         $messages = $this->subscriber->pull(['maxMessages' => $this->maxMessages]);
