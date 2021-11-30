@@ -64,6 +64,14 @@ class Subscriber
         $subscription->modifyAckDeadline($message,$seconds, $options);
     }
 
+
+    public function getInfo()
+    {
+        $subscription = $this->getSubscription();
+        
+        return $subscription->info();
+    }
+
     protected function getSubscription(): Subscription
     {
         if (is_null($this->subscription)) {

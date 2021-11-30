@@ -95,6 +95,17 @@ return [
 
 `php artisan my-listener --sleep=500 --once --ackBeforeHandling`
 
+## Listener supervisor 指令
+一次監聽 `pubsub.listeners` 中所有的 Listeners，當 Listener 發生中斷，會自動重啟
+每一個 Listener 將會產生一個新 process
+
+`php artisan pubsub-supervisor [--sleep=] [--once] [--ackBeforeHandling]`
+
+#### 參數說明
+- sleep: 每個 Message 處理完後的緩衝時間，單位是 ms
+- once: 完成一組 Messages 後，就釋放掉 Process
+- ackBeforeHandling: 不論未來 Handler 執行成功與否，執行前就回覆 acknowledge 到 Google PubSub
+
 ## Handler 和 ThrowableHandler 說明
 Handler 和 ThrowableHandler 的用途，分別是用來處理 Message 和處理中的例外處理<br />
 
@@ -107,7 +118,8 @@ class MyHandler extends AbstractHandler
     public function handle()
     {
         $data = json_decode($this->message->data(), true);
-
+        $info = $this->subscriptionInfo;
+        $topic = $info['topic'] ?? '';
         // Do something
     }
 }
@@ -123,6 +135,8 @@ class MyThrowableHandler extends AbstractThrowableHandler
     public function handle()
     {
         $data = json_decode($this->message->data(), true);
+        $info = $this->subscriptionInfo;
+        $topic = $info['topic'] ?? '';
         $errorMessage = $this->throwable->getMessage();
         
         // Do something

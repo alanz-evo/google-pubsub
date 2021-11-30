@@ -222,14 +222,15 @@ class MessageListener
     protected function putMessageToHandlerAndHandle(Message $message, string $handler, string $throwableHandler = null): string
     {
         try {
-            app(HandlerBroker::class)->handle($handler, $message);
+            $subscriptionInfo = $this->subscriber->getInfo();
+            app(HandlerBroker::class)->handle($handler, $subscriptionInfo, $message);
             $situation = static::SITUATION_SUCCESS;
         } catch (Throwable $th) {
             $situation = static::SITUATION_FAIL;
             if (empty($throwableHandler)) {
                 Log::error($th);
             } else {
-                app(ThrowableHandlerBroker::class)->handle($throwableHandler, $message, $th);
+                app(ThrowableHandlerBroker::class)->handle($throwableHandler, $subscriptionInfo, $message, $th);
             }
         }
 

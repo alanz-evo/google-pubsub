@@ -24,7 +24,7 @@ class ThrowableHandlerBrokerTest extends TestCase
 
         $this->assertEquals(
             'test exception',
-            $handlerBroker->handle(TestThrowableHandler::class, $message, $exception)
+            $handlerBroker->handle(TestThrowableHandler::class, [], $message, $exception)
         );
     }
 
@@ -39,6 +39,6 @@ class ThrowableHandlerBrokerTest extends TestCase
         $exception = new Exception('test exception');
         $handlerBroker = new ThrowableHandlerBroker();
 
-        $handlerBroker->handle('SomeNotExistThrowableHandler', $message, $exception);
+        $handlerBroker->handle('SomeNotExistThrowableHandler', [], $message, $exception);
     }
 }

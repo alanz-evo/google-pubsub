@@ -12,11 +12,26 @@ abstract class AbstractHandler
     protected $message;
 
     /**
+     * @var array
+     */
+    protected $subscriptionInfo = [];
+
+    /**
      * @param Message $message
      */
     public function setMessage(Message $message)
     {
         $this->message = $message;
+
+        return $this;
+    }
+
+    /**
+     * @param array $subscriptionInfo
+     */
+    public function setSubscriptionInfo(array $subscriptionInfo)
+    {
+        $this->subscriptionInfo = $subscriptionInfo;
 
         return $this;
     }

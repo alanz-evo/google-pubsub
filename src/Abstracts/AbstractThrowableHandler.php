@@ -5,27 +5,12 @@ namespace AlanzEvo\GooglePubsub\Abstracts;
 use Google\Cloud\PubSub\Message;
 use Throwable;
 
-abstract class AbstractThrowableHandler
+abstract class AbstractThrowableHandler extends AbstractHandler
 {
-    /**
-     * @var Message
-     */
-    protected $message;
-
     /**
      * @var Throwable
      */
     protected $throwable;
-
-    /**
-     * @param Message $message
-     */
-    public function setMessage(Message $message)
-    {
-        $this->message = $message;
-
-        return $this;
-    }
 
     /**
      * @param Throwable $throwable
@@ -36,6 +21,4 @@ abstract class AbstractThrowableHandler
 
         return $this;
     }
-
-    abstract public function handle();
 }

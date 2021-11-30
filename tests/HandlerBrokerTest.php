@@ -20,7 +20,7 @@ class HandlerBrokerTest extends TestCase
 
         $this->assertEquals(
             'this is a testing data.',
-            $handlerBroker->handle(TestHandler::class, $message)
+            $handlerBroker->handle(TestHandler::class, [], $message)
         );
     }
 
@@ -34,6 +34,6 @@ class HandlerBrokerTest extends TestCase
         $message = new Message(['data' => 'this is a testing data.']);
         $handlerBroker = new HandlerBroker();
 
-        $handlerBroker->handle('SomeNotExistHandler', $message);
+        $handlerBroker->handle('SomeNotExistHandler', [], $message);
     }
 }
