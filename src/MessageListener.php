@@ -61,6 +61,11 @@ class MessageListener
     protected $once = false;
 
     /**
+     * @var bool
+     */
+    protected $isChild = false;
+    
+    /**
      * @param Subscriber $subscriber
      */
     public function setSubscriber(Subscriber $subscriber)
@@ -140,6 +145,13 @@ class MessageListener
         return $this;
     }
 
+    public function setIsChild(bool $isChild)
+    {
+        $this->isChild = $isChild;
+
+        return $this;
+    }
+
     /**
      * Pull and handle messages loop.
      */
@@ -168,7 +180,7 @@ class MessageListener
         
         return !$this->once
             && !$this->terminated
-            && $ppid !== 1;
+            && (!$this->isChild || $ppid !== 1);
     }
 
     protected function listenForSignals()

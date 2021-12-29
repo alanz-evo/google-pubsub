@@ -147,6 +147,7 @@ class Supervisor
             ->setSubscriber($subscriber)
             ->setAckBeforeHandling($this->ackBeforeHandling)
             ->setOnce($this->once)
+            ->setIsChild(true)
             ->loop();
     }
 
