@@ -30,6 +30,11 @@ class Supervisor
     protected $monitoringListeners = [];
 
     /**
+     * @var bool
+     */
+    protected $alreadyListenSignals = false;
+
+    /**
      * @param int $sleepMsPerMessage
      */
     public function setSleepMsPerMessage(int $sleepMsPerMessage)
@@ -67,11 +72,14 @@ class Supervisor
         $listeners = config('pubsub.listeners');
 
         foreach ($listeners as $name => $config) {
-            $this->monitoringListeners[$name] = [
-                'config' => $config,
-                'pid' => null,
-                'start_time' => null,
-            ];
+            $processNum = $config['process_num'] ?? 1;
+            for ($i = 1; $i <= $processNum; $i++) {
+                $this->monitoringListeners[$name . ':' . $i] = [
+                    'config' => $config,
+                    'pid' => null,
+                    'start_time' => null,
+                ];
+            }
         }
 
         while (!$this->terminated) {
@@ -99,7 +107,10 @@ class Supervisor
             }
         }
 
-        $this->listenForSignals();
+        if (!$this->alreadyListenSignals) {
+            $this->listenForSignals();
+            $this->alreadyListenSignals = true;
+        }
     }
 
     /**

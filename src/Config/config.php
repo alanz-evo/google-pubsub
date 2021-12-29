@@ -15,6 +15,7 @@ return [
         //     'throwableHandler' => 'App\\ThrowableHandler',  // 當處理者發生錯誤時，要處理錯誤的處理者
         //     'subscriptionId' => 'sample',
         //     'connection' => 'default',
+        //     'process_num' => 1,
         // ],
     ],
 ];
